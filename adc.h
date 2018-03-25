@@ -1,0 +1,1 @@
+#define ADC_POT 5
