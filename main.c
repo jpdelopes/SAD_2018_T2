@@ -82,7 +82,7 @@ int main(void)
 		//sprintf(pot, "%.3g", res);
 		initUART();
 		if(UART2IsPressed()){
-			UART2PutDec(readADC());
+			UART2PutDec(voltage);
 		}
 	}
 	return 0;
