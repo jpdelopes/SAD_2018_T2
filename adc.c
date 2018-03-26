@@ -37,24 +37,12 @@ unsigned int readADC(void)
     return ADC1BUF0;
 }
 
-void openADC(unsigned int config1, unsigned int config2, unsigned int
-             	config3, unsigned int configport, unsigned int configscan)
-{
-    AD1PCFG = configport;
-    AD1CSSL = configscan;
-    AD1CON3 = config3; 
-    AD1CON2 = config2;
-    AD1CON1 = config1;
-    AD1CON1bits.SAMP = config1 >> 1;
-}
-
 void initADC()
 {
 	AD1PCFGbits.PCFG5 = 0;			//Analog input AN5
 	AD1PCFGbits.PCFG4 = 0;
 
 	AD1CON2 = 0x0000;				//Vdd, Vss as Vref+, Vref-
-	AD1CON3 = 0x0001;				//Manual Sample, Tad = 2 Tcy
 	AD1CON1 = 0x0000;				//SAMP bit = 0 ends sampling, starts converting
 	
 	AD1CSSL = 0;					//No scanned inputs

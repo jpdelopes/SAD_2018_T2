@@ -30,10 +30,40 @@ void initUART(void)
  	IFS1bits.U2RXIF = 0;
 }
 
-void  putCharUART(char Ch){
+void  UART2PutChar(char Ch){
     // wait for empty buffer  
     while(U2STAbits.UTXBF == 1);
       U2TXREG = Ch;
+}
+
+char UART2IsPressed()
+{
+    if(IFS1bits.U2RXIF == 1)
+        return 1;
+    return 0;
+}
+
+char UART2GetChar(){
+	char Temp;
+    while(IFS1bits.U2RXIF == 0);
+    Temp = U2RXREG;
+    IFS1bits.U2RXIF = 0;
+    return Temp;
+}
+
+void  UART2PutDec(unsigned char Dec){
+unsigned char Res;
+    Res = Dec;
+
+    if(Res/100) 
+        UART2PutChar(Res/100+'0');
+    Res = Res - (Res/100)*100;
+
+    if(Res/10) 
+        UART2PutChar(Res/10+'0');
+    Res = Res - (Res/10)*10;
+ 
+    UART2PutChar(Res+'0');
 }
 
 int main(void)
@@ -50,6 +80,10 @@ int main(void)
 		voltage = (res*5.0)/1024;
 		//printf("%d", res);
 		//sprintf(pot, "%.3g", res);
+		initUART();
+		if(UART2IsPressed()){
+			UART2PutDec(readADC());
+		}
 	}
 	return 0;
 }
