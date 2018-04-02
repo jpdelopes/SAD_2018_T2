@@ -9,7 +9,7 @@ LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
 LanguageToolID={069BD372-6CA0-40D4-BF2F-5DC806D05083}
 LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-gcc.exe
 PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files (x86)\Microchip\MPLAB C30\lib||$(LKRDIR)||
-SOLK=<src>|main.c|adc.c||<obj>||<lib>||<lkr>|p24FJ128GA010.gld||
+SOLK=<src>|main.c|adc.c|uart.c||<obj>||<lib>||<lkr>|p24FJ128GA010.gld||
 SuiteArgsString=
 ToolArgsString=-g -Wall
 TraceCmdString=
@@ -22,12 +22,25 @@ LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
 LanguageToolID={069BD372-6CA0-40D4-BF2F-5DC806D05083}
 LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-gcc.exe
 PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files (x86)\Microchip\MPLAB C30\lib||$(LKRDIR)||
-SOLK=<src>|main.c|adc.c||<obj>||<lib>||<lkr>|p24FJ128GA010.gld||
+SOLK=<src>|main.c|adc.c|uart.c||<obj>||<lib>||<lkr>|p24FJ128GA010.gld||
 SuiteArgsString=
 ToolArgsString=-g -Wall
 TraceCmdString=
 DebugOptions=
 [File002]
+Location=C:\Users\João Pedro Lopes\Desktop\Univ\SAD\Trabalhos\T2\Trabalho_2\uart.o
+Folder=Intermediary
+DeviceName=PIC24FJ128GA010
+LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
+LanguageToolID={069BD372-6CA0-40D4-BF2F-5DC806D05083}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-gcc.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files (x86)\Microchip\MPLAB C30\lib||$(LKRDIR)||
+SOLK=<src>|main.c|adc.c|uart.c||<obj>||<lib>||<lkr>|p24FJ128GA010.gld||
+SuiteArgsString=
+ToolArgsString=-g -Wall
+TraceCmdString=
+DebugOptions=
+[File003]
 Location=C:\Users\João Pedro Lopes\Desktop\Univ\SAD\Trabalhos\T2\Trabalho_2\Template.cof
 Folder=Output
 DeviceName=PIC24FJ128GA010
@@ -35,12 +48,12 @@ LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
 LanguageToolID={433C3D55-811D-409D-A6BF-159CF9355B42}
 LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-ld.exe
 PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files (x86)\Microchip\MPLAB C30\lib||$(LKRDIR)||
-SOLK=<src>|main.c|adc.c||<obj>||<lib>||<lkr>|p24FJ128GA010.gld||
+SOLK=<src>|main.c|adc.c|uart.c||<obj>||<lib>||<lkr>|p24FJ128GA010.gld||
 SuiteArgsString=
 ToolArgsString=-o"$(BINDIR_)$(TARGETBASE).$(TARGETSUFFIX)" -Map="$(BINDIR_)$(TARGETBASE).map" --report-mem
 TraceCmdString=
 DebugOptions=
-[File003]
+[File004]
 Location=C:\Users\João Pedro Lopes\Desktop\Univ\SAD\Trabalhos\T2\Trabalho_2\Template.hex
 Folder=Output
 DeviceName=PIC24FJ128GA010
@@ -48,7 +61,7 @@ LanguageToolSuiteID={479DDE59-4D56-455E-855E-FFF59A3DB57E}
 LanguageToolID={433C3D55-811D-409D-A6BF-159CF9355B42}
 LanguageToolLocation=C:\Program Files (x86)\Microchip\MPLAB C30\bin\pic30-ld.exe
 PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)|C:\Program Files (x86)\Microchip\MPLAB C30\lib||$(LKRDIR)||
-SOLK=<src>|main.c|adc.c||<obj>||<lib>||<lkr>|p24FJ128GA010.gld||
+SOLK=<src>|main.c|adc.c|uart.c||<obj>||<lib>||<lkr>|p24FJ128GA010.gld||
 SuiteArgsString=
 ToolArgsString=-o"$(BINDIR_)$(TARGETBASE).$(TARGETSUFFIX)" -Map="$(BINDIR_)$(TARGETBASE).map" --report-mem
 TraceCmdString=

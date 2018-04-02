@@ -15,19 +15,18 @@ void convertADC(void)
 	AD1CON1bits.SAMP = 0;
 }
 
-unsigned int readADC(void)
+unsigned int readADC(unsigned int ch)
 {
 	int i;
 
-	//Switch Channel AD1CHS = channel;
-	AD1CHS  = POT;
+	setChanADC(ch);
 
 	AD1CON1bits.SAMP = 1; 	//Start sampling
 	for(i=0;i<1000;i++)
     {
         Nop(); 			 	//Sample delay
     } 
-	convertADC();          
+	convertADC();           //Start conversion
     for(i=0;i<1000;i++)
     {
         Nop(); 			
@@ -40,10 +39,11 @@ unsigned int readADC(void)
 void initADC()
 {
 	AD1PCFGbits.PCFG5 = 0;			//Analog input AN5
-	AD1PCFGbits.PCFG4 = 0;
+	AD1PCFGbits.PCFG4 = 0;			//AN4
 
+	AD1CON3 = 0X0002; 				//Manual Sample, Tad = 2 Tcy
 	AD1CON2 = 0x0000;				//Vdd, Vss as Vref+, Vref-
-	AD1CON1 = 0x0000;				//SAMP bit = 0 ends sampling, starts converting
+	AD1CON1 = 0;					//SAMP bit = 0 ends sampling, starts converting
 	
 	AD1CSSL = 0;					//No scanned inputs
 	AD1CON1bits.ADON = 1; 			//ADC ON

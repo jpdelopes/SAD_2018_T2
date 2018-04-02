@@ -10,7 +10,7 @@ void setChanADC(unsigned int ch);
 
 void convertADC(void);
 
-unsigned int readADC(void);
+unsigned int readADC(unsigned int ch);
 
 void openADC(unsigned int config1, unsigned int config2, unsigned int
              	config3, unsigned int configport, unsigned int configscan);
