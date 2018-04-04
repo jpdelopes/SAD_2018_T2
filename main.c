@@ -17,16 +17,24 @@ int main(void)
 {
 	unsigned int res;
 	float voltage;
-	unsigned char measure[6];
-
+	unsigned char measure[6], ch;
+	
 	initADC();
 	initUART();
 
-	while(1)	{
+	while(1)	
+	{
 		res = readADC(POT);
 		voltage = (res*5.0)/1024;
-		sprintf(measure, "%.2f", voltage);
-		putStringUART(measure);
+		sprintf(measure, "Pot: %.2f", voltage);
+		
+		if(IFS1bits.U2RXIF == 1)			//Receive Interrpt flag
+		{
+			ch = getCharUART();
+			if(ch == 'T')
+				putStringUART(measure);
+			
+		}
 	}
 	return 0;
 }

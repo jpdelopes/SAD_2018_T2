@@ -12,8 +12,4 @@ void putCharUART(char ch);
 
 void putStringUART(char *str);
 
-char UART2IsPressed();
-
-char UART2GetChar();
-
-void UART2PutDec(unsigned char Dec);
+char getCharUART(void);
