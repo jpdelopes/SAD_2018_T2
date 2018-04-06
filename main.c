@@ -15,25 +15,50 @@ _CONFIG2( FCKSM_CSDCMD & OSCIOFNC_OFF & POSCMOD_HS & FNOSC_PRI)
 
 int main(void)
 {
-	unsigned int res;
-	float voltage;
-	unsigned char measure[6], ch;
-	
+	float res;
+	unsigned char measureP[6], measureT[6], measureL[6], password[1]="A", ch;
+
 	initADC();
 	initUART();
+	
+	putStringUART("1: Press button RD5:");
+	while(PORTDbits.RD5);
 
+	while(1)
+	{
+		putStringUART("2: Input the 5 character password:");
+		ch=getCharUART();
+
+		if(strcmp(ch,password)==0)
+			break;
+		else
+			putStringUART("Wrong password, please try again:");
+	}
+
+	putStringUART("3: Press P, T or L:");
 	while(1)	
 	{
-		res = readADC(POT);
-		voltage = (res*5.0)/1024;
-		sprintf(measure, "Pot: %.2f", voltage);
+		res = (float)readADC(POT);
+		res = (res*5.0)/1024;
+		sprintf(measureP, "Pot:  %.2f V", res);
+
+		res = (float)readADC(TEMP);
+		res = ((res * 5000 + 512) / 1024) - 500;
+		sprintf(measureT, "Temp: %.2f ºC", res);
 		
+		res = res = (float)readADC(LDR);
+		res = (res*5.0)/1024;
+		sprintf(measureL, "Temp: %.2f V", res);		
+
 		if(IFS1bits.U2RXIF == 1)			//Receive Interrpt flag
 		{
 			ch = getCharUART();
-			if(ch == 'T')
-				putStringUART(measure);
-			
+			switch (ch)
+			{
+				case 'P' : putStringUART(measureP); break;
+				case 'T' : putStringUART(measureT); break;
+				case 'L' : putStringUART(measureL); break;
+			}
 		}
 	}
 	return 0;

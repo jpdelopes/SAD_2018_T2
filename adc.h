@@ -3,6 +3,7 @@
 #define _XTAL_FREQ 	8000000
 #define POT			5
 #define TEMP		4
+#define LDR			6
 
 char busyADC(void);
 
