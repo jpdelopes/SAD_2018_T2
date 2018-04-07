@@ -13,17 +13,26 @@ _CONFIG1( JTAGEN_OFF & GCP_OFF & GWRP_OFF & COE_OFF & FWDTEN_OFF & ICS_PGx2)
 _CONFIG2( FCKSM_CSDCMD & OSCIOFNC_OFF & POSCMOD_HS & FNOSC_PRI)
 #endif
 
+void fanON(float pot_speed)	{
+	// if temp > 30ºC -> turn fan on
+	// (...)
+	Nop();
+}
+
 int main(void)
 {
-	float res;
-	unsigned char measureP[6], measureT[6], measureL[6], password[1]="A", ch;
+	float res, res_;
+	unsigned char measureP[6], measureT[6], measureLL[6], measureLR[6], password[1]="A", ch;
+	int state = 1;		//1:Sun and 0:Shadow
 
 	initADC();
-	initUART();
-	
-	putStringUART("1: Press button RD5:");
-	while(PORTDbits.RD5);
+	initUART();	
 
+	// ------------------------------------- 1 ---------------------------------------------
+	putStringUART("1: Press button RD13:");
+	while(PORTDbits.RD13);
+
+	// ------------------------------------- 2 ---------------------------------------------
 	while(1)
 	{
 		putStringUART("2: Input the 5 character password:");
@@ -35,31 +44,70 @@ int main(void)
 			putStringUART("Wrong password, please try again:");
 	}
 
-	putStringUART("3: Press P, T or L:");
+	// ------------------------------------- 3 ---------------------------------------------
+	putStringUART("3: Press RD6, P, T or L:");
 	while(1)	
 	{
-		res = (float)readADC(POT);
-		res = (res*5.0)/1024;
-		sprintf(measureP, "Pot:  %.2f V", res);
+		res  = (float)readADC(POT);
+		res  = (res*5.0)/1024;
+		sprintf(measureP, "Pot:   %.2f V", res);
 
-		res = (float)readADC(TEMP);
-		res = ((res * 5000 + 512) / 1024) - 500;
-		sprintf(measureT, "Temp: %.2f ºC", res);
+		res_ = (float)readADC(TEMP);
+		res_ = ((res*5000+512)/1024)-500;
+		sprintf(measureT, "Temp:  %.2f ºC", res_);
+
+		// --------------------------------- 5 ---------------------------------------------
+		if (res_ > 30)
+			fanON(res);
+		else
+			Nop();					//Turn off fan
 		
-		res = res = (float)readADC(LDR);
-		res = (res*5.0)/1024;
-		sprintf(measureL, "Temp: %.2f V", res);		
+		res  = (float)readADC(LDR_L);
+		sprintf(measureLL, "LDR-L: %.2f V", (res*5.0)/1024);
 
-		if(IFS1bits.U2RXIF == 1)			//Receive Interrpt flag
+		res_ = (float)readADC(LDR_R);
+		sprintf(measureLR, "LDR-R: %.2f V", (res_*5.0)/1024);		
+		
+		// --------------------------------- 4 ---------------------------------------------
+		if(!PORTDbits.RD6)			//The mode changes
+		{
+			if(state == 1)
+				state = 0;
+			else
+				state = 1;
+		}
+
+		if (res > res_)				//Approximately
+		{
+			Nop(); //Stop Motor
+		}
+		else	
+		{
+			if(state == 1)			//Try to find the sun
+			{
+				if (res > res_)		//Move motor to left
+					Nop(); //!!!
+			}
+			else					//Move away from the sun
+			{
+				if (res < res_)		//Move motor to right
+					Nop(); //!!!
+			}
+		}
+
+		// --------------------------------- 5 ---------------------------------------------
+		if(IFS1bits.U2RXIF == 1)	//Receive Interrpt flag
 		{
 			ch = getCharUART();
 			switch (ch)
 			{
-				case 'P' : putStringUART(measureP); break;
-				case 'T' : putStringUART(measureT); break;
-				case 'L' : putStringUART(measureL); break;
+				case 'P' : putStringUART(measureP);  break;
+				case 'T' : putStringUART(measureT);  break;
+				case 'L' : putStringUART(measureLL); 
+						   putStringUART(measureLR); break;
 			}
 		}
+
 	}
 	return 0;
 }
