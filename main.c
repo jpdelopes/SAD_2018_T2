@@ -16,12 +16,12 @@ _CONFIG2( FCKSM_CSDCMD & OSCIOFNC_OFF & POSCMOD_HS & FNOSC_PRI)
 #endif
 
 #define _password 			"123456"
-#define _start				"1: Press button RD13:"
-#define _insertPassword 	"2: Input the 5 character password:"
-#define _wrongPassword 		"Wrong password, please try again:"
-#define _correctPassword	"Welcome!"
-#define _options			"3: Press RD6, P, T or L:"
-#define _numCharExceed		"You have exceeded the maximum number of characters!"
+#define _start				"1: Press button RD13: \n\r"
+#define _insertPassword 	"2: Input the 5 character password:\n\r"
+#define _wrongPassword 		"Wrong password, please try again:\n\r"
+#define _correctPassword	"Welcome!\n\r"
+#define _options			"3: Press RD6, P, T or L:\n\r"
+#define _numCharExceed		"You have exceeded the maximum number of characters!\n\r"
 
 void fanON(float pot_speed)	{
 	// if temp > 30ºC -> turn fan on
@@ -53,11 +53,13 @@ int main(void)
 	do
 	{
 		ch = getCharUART();
+		putCharUART(ch);
 		switch(ch)
 		{
 			case 0x0D : flag = strcmp(measure, _password);		// Enter
 						if (flag != 0)
 						{
+							putStringUART(measure);
 							putStringUART(_wrongPassword);
 							for(i = 9; i > 0; i--)
 							   measure[i] = '\0'; 
@@ -106,9 +108,9 @@ int main(void)
 			      ;
 			mode = (mode == 1) ? 0 : 1;
 			if (mode == 0)	
-			   putStringUART("Tanning Mode");
+			   putStringUART("Tanning Mode\n\r");
 			else
-			   putStringUART("Shade Mode");		
+			   putStringUART("Shade Mode\n\r");		
 		}
 
 		resLL = (float)readADC(LDR_L);
@@ -123,10 +125,44 @@ int main(void)
 			if(mode == 1)			//Try to find the sun
 			{
 				if (resLL > resLR)		//Move motor to left
-					Nop(); //!!!
+					{
+					LED4_IO= 1;	//D7 
+					LED5_IO= 0;	//D8
+					for( i = 0 ; i < 20000 ; i++)
+						;
+					LED4_IO= 0;	//D7 
+					LED5_IO= 0;	//D8
+					}
+
+				else{
+					LED4_IO= 1;	//D7 
+					LED5_IO= 0;	//D8
+					for( i = 0 ; i < 20000 ; i++)
+						;
+					LED4_IO= 0;	//D7 
+					LED5_IO= 0;	//D8
+				}
+
 			}
 			else					//Move away from the sun
-				Nop(); //!!!
+				if (resLL > resLR)		//Move motor to right
+					{
+					LED4_IO= 0;	//D7 
+					LED5_IO= 1;	//D8
+					for( i = 0 ; i < 20000 ; i++)
+						;
+					LED4_IO= 0;	//D7 
+					LED5_IO= 0;	//D8
+					}
+
+				else{
+					LED4_IO= 0;	//D7 
+					LED5_IO= 1;	//D8
+					for( i = 0 ; i < 20000 ; i++)
+						;
+					LED4_IO= 0;	//D7 
+					LED5_IO= 0;	//D8
+				}
 		}
 
 		// ------------------------------------------------------------------------------
@@ -135,15 +171,15 @@ int main(void)
 			ch = getCharUART();
 			switch (toupper(ch))
 			{
-				case 'P' : sprintf(measure,"Pot:      %.2f     V", resP);
+				case 'P' : sprintf(measure,"Pot:      %.2f     V\n\r", resP);
 						   putStringUART(measure);   
 						   break;
-				case 'T' : sprintf(measure,"Temp:     %.2f\xf8  C", resT);
+				case 'T' : sprintf(measure,"Temp:     %.2f\xf8   C\n\r", resT);
 						   putStringUART(measure);  
 						   break;
-				case 'L' : sprintf(measure,"LDR-L:    %.2f     V", (resLL*5.0)/1024);
+				case 'L' : sprintf(measure,"LDR-L:    %.2f     V\n\r", (resLL*5.0)/1024);
 						   putStringUART(measure);
-						   sprintf(measure,"LDR-R:    %.2f     V", (resLR*5.0)/1024); 
+						   sprintf(measure,"LDR-R:    %.2f     V\n\r", (resLR*5.0)/1024); 
 						   putStringUART(measure); 
 						   break;
 			}
