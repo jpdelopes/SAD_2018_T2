@@ -39,6 +39,9 @@ void initADC()
 {
 	AD1PCFGbits.PCFG5 = 0;			//Analog input AN5
 	AD1PCFGbits.PCFG4 = 0;			//AN4
+	AD1PCFGbits.PCFG6 = 0;		
+	AD1PCFGbits.PCFG7 = 0;
+	AD1PCFGbits.PCFG3 = 0;			
 
 	AD1CON3 = 0X0002; 				//Manual Sample, Tad = 2 Tcy
 	AD1CON2 = 0x0000;				//Vdd, Vss as Vref+, Vref-
