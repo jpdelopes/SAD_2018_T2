@@ -36,6 +36,9 @@ int main(void)
 	unsigned int  mode = 1, flag = 1;		//1:Sun and 0:Shadow
 	int i = 0;
 
+	LED4_TRIS = 0;	//D7 
+	LED5_TRIS = 0;	//D8
+
 	initADC();
 	initUART();	
 
@@ -97,12 +100,15 @@ int main(void)
 			Nop();					//Turn off fan
 		
 		// ------------------------------------------------------------------------------
-		if(!PORTDbits.RD6)			//The mode changes
+		if(!BUTTON6_IO)			//The mode changes
 		{
-			if(mode == 1)
-				mode = 0;
+			while(!BUTTON6_IO)
+			      ;
+			mode = (mode == 1) ? 0 : 1;
+			if (mode == 0)	
+			   putStringUART("Tanning Mode");
 			else
-				mode = 1;
+			   putStringUART("Shade Mode");		
 		}
 
 		resLL = (float)readADC(LDR_L);

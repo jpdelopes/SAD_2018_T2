@@ -15,4 +15,7 @@
 #define LED7_TRIS	(TRISAbits.TRISA7)	// Ref D10	// Note: This is multiplexed with BUTTON1
 #define LED7_IO		(LATAbits.LATA7)
 
-#define BUTTON		 PORTDbits.RD7
+#define BUTTON6_IO	 PORTDbits.RD6
+#define BUTTON13_IO	 PORTDbits.RD6
+
+
