@@ -1,5 +1,7 @@
 #include <p24fxxxx.h>
 #include <stdio.h>
+#include <ctype.h>
+
 #include "io_mapping.h"
 #include "./adc.h"
 #include "./uart.h"
@@ -13,6 +15,14 @@ _CONFIG1( JTAGEN_OFF & GCP_OFF & GWRP_OFF & COE_OFF & FWDTEN_OFF & ICS_PGx2)
 _CONFIG2( FCKSM_CSDCMD & OSCIOFNC_OFF & POSCMOD_HS & FNOSC_PRI)
 #endif
 
+#define _password 			"123456"
+#define _start				"1: Press button RD13:"
+#define _insertPassword 	"2: Input the 5 character password:"
+#define _wrongPassword 		"Wrong password, please try again:"
+#define _correctPassword	"Welcome!"
+#define _options			"3: Press RD6, P, T or L:"
+#define _numCharExceed		"You have exceeded the maximum number of characters!"
+
 void fanON(float pot_speed)	{
 	// if temp > 30ºC -> turn fan on
 	// (...)
@@ -21,94 +31,118 @@ void fanON(float pot_speed)	{
 
 int main(void)
 {
-	float res, res_;
-	unsigned char measureP[6], measureT[6], measureLL[6], measureLR[6], password[1]="A", ch;
-	int state = 1;		//1:Sun and 0:Shadow
+	float resP, resT, resLL, resLR;
+	char measure[10], ch;
+	unsigned int  mode = 1, flag = 1;		//1:Sun and 0:Shadow
+	int i = 0;
 
 	initADC();
 	initUART();	
 
-	// ------------------------------------- 1 ---------------------------------------------
-	putStringUART("1: Press button RD13:");
+	// ----------------------------------------------------------------------------------
+	putStringUART(_start);
 	while(PORTDbits.RD13);
+	while(U2STAbits.URXDA)					//To empty the buffer
+	   getCharUART();
 
-	// ------------------------------------- 2 ---------------------------------------------
-	while(1)
+	// ----------------------------------------------------------------------------------
+	putStringUART(_insertPassword);
+	do
 	{
-		putStringUART("2: Input the 5 character password:");
-		ch=getCharUART();
-
-		if(strcmp(ch,password)==0)
-			break;
-		else
-			putStringUART("Wrong password, please try again:");
+		ch = getCharUART();
+		switch(ch)
+		{
+			case 0x0D : flag = strcmp(measure, _password);		// Enter
+						if (flag != 0)
+						{
+							putStringUART(_wrongPassword);
+							for(i = 9; i > 0; i--)
+							   measure[i] = '\0'; 
+							measure[0] = '\0';
+						}
+						break;
+			case 0x08 : if(i!=0)								// Backspace
+						{
+							i--;									
+							measure[i] = '\0';
+						}
+						break;	
+			default   : if (i < 10)	
+						{
+			   				measure[i] = ch;
+			   				i++;
+						}
+						else
+						   putStringUART(_numCharExceed);
+						break;
+		}
 	}
+	while(flag != 0);
+	putStringUART(_correctPassword);
 
-	// ------------------------------------- 3 ---------------------------------------------
-	putStringUART("3: Press RD6, P, T or L:");
+	// ----------------------------------------------------------------------------------
+	putStringUART(_options);
 	while(1)	
 	{
-		res  = (float)readADC(POT);
-		res  = (res*5.0)/1024;
-		sprintf(measureP, "Pot:   %.2f V", res);
+		resP  = (float)readADC(POT);
+		resP  = (resP*5.0)/1024;
 
-		res_ = (float)readADC(TEMP);
-		res_ = ((res*5000+512)/1024)-500;
-		sprintf(measureT, "Temp:  %.2f ºC", res_);
+		resT = (float)readADC(TEMP);
+		resT = (resT-155)*0.322;
 
-		// --------------------------------- 5 ---------------------------------------------
-		if (res_ > 30)
-			fanON(res);
+		// ------------------------------------------------------------------------------
+		if (resT > 30)
+			fanON(resP);
 		else
 			Nop();					//Turn off fan
 		
-		res  = (float)readADC(LDR_L);
-		sprintf(measureLL, "LDR-L: %.2f V", (res*5.0)/1024);
-
-		res_ = (float)readADC(LDR_R);
-		sprintf(measureLR, "LDR-R: %.2f V", (res_*5.0)/1024);		
-		
-		// --------------------------------- 4 ---------------------------------------------
+		// ------------------------------------------------------------------------------
 		if(!PORTDbits.RD6)			//The mode changes
 		{
-			if(state == 1)
-				state = 0;
+			if(mode == 1)
+				mode = 0;
 			else
-				state = 1;
+				mode = 1;
 		}
 
-		if (res > res_)				//Approximately
+		resLL = (float)readADC(LDR_L);
+		resLR = (float)readADC(LDR_R);
+
+		if (resLL == resLR)				//Approximately
 		{
 			Nop(); //Stop Motor
 		}
 		else	
 		{
-			if(state == 1)			//Try to find the sun
+			if(mode == 1)			//Try to find the sun
 			{
-				if (res > res_)		//Move motor to left
+				if (resLL > resLR)		//Move motor to left
 					Nop(); //!!!
 			}
 			else					//Move away from the sun
-			{
-				if (res < res_)		//Move motor to right
-					Nop(); //!!!
-			}
+				Nop(); //!!!
 		}
 
-		// --------------------------------- 5 ---------------------------------------------
+		// ------------------------------------------------------------------------------
 		if(IFS1bits.U2RXIF == 1)	//Receive Interrpt flag
 		{
 			ch = getCharUART();
-			switch (ch)
+			switch (toupper(ch))
 			{
-				case 'P' : putStringUART(measureP);  break;
-				case 'T' : putStringUART(measureT);  break;
-				case 'L' : putStringUART(measureLL); 
-						   putStringUART(measureLR); break;
+				case 'P' : sprintf(measure,"Pot:      %.2f     V", resP);
+						   putStringUART(measure);   
+						   break;
+				case 'T' : sprintf(measure,"Temp:     %.2f\xf8  C", resT);
+						   putStringUART(measure);  
+						   break;
+				case 'L' : sprintf(measure,"LDR-L:    %.2f     V", (resLL*5.0)/1024);
+						   putStringUART(measure);
+						   sprintf(measure,"LDR-R:    %.2f     V", (resLR*5.0)/1024); 
+						   putStringUART(measure); 
+						   break;
 			}
 		}
 
 	}
 	return 0;
 }
-

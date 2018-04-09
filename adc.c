@@ -20,17 +20,16 @@ unsigned int readADC(unsigned int ch)
 	int i;
 
 	setChanADC(ch);
-
+	for(i=0;i<1000;i++)
+    {
+        Nop(); 			
+    }
 	AD1CON1bits.SAMP = 1; 	//Start sampling
 	for(i=0;i<1000;i++)
     {
         Nop(); 			 	//Sample delay
     } 
 	convertADC();           //Start conversion
-    for(i=0;i<1000;i++)
-    {
-        Nop(); 			
-    }
 	while(busyADC());
 
     return ADC1BUF0;
